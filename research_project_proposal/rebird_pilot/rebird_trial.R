@@ -32,6 +32,28 @@ braid_burn_species <- ebirdgeo(
 head(braid_burn_species)
 
 
+##### Repeat for Pentland Site #####
+
+# read in Pentland KML file
+pentland_site <- st_read("./research_project_proposal/rebird_pilot/data/pentland_site.kml")
+# check the file
+plot(pentland_site)
+# save the bounding box
+pentland_bbox <- st_bbox(pentland_site)
+
+# plug bounding box values into the rebird function
+pentland_species <- ebirdgeo(
+  lat = (pentland_bbox$ymin + pentland_bbox$ymax) / 2,
+  lng = (pentland_bbox$xmin + pentland_bbox$xmax) / 2,
+  dist = 8
+)
+
+# check data
+head(pentland_species)
+
+
+
+
 #### auk method ####
 library(auk)
 
