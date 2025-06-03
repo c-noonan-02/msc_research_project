@@ -1,3 +1,6 @@
 [submodule "research_project_proposal"]
 	path = research_project_proposal
 	url = https://github.com/c-noonan-02/research_project_proposal
+[submodule "phase1_survey_design"]
+	path = phase1_survey_design
+	url = https://github.com/c-noonan-02/phase1_survey_design
