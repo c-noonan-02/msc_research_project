@@ -4,3 +4,6 @@
 [submodule "phase1_survey_design"]
 	path = phase1_survey_design
 	url = https://github.com/c-noonan-02/phase1_survey_design
+[submodule "final_research_project"]
+	path = final_research_project
+	url = https://github.com/c-noonan-02/final_research_project
