@@ -56,33 +56,68 @@ head(pentland_species)
 
 #### auk method ####
 library(auk)
+library(sf)
+library(dplyr)
+library(readr)
 
 ##### Import Spatial File Using the sf package #####
 
-# would need to submit an abstract to eBird for permission for the EBD data set - speak to Ally first
-
-# code below is dummy code until data is obtained
-
 # import eBird EBD file
-EBD_file <- "./research_project_proposal/rebird_pilot/data/EBD_data.txt"
-# filter the file
-EBD_filters <- auk_ebd(EBD_file)
+ebd_data <- read.csv("./research_project_proposal/rebird_pilot/ebird_data/ebd_data.csv")
+View(ebd_data)
 
-# select filters
-EBD_filters <- EBD_filters %>%
-  auk_date(date = c("2024-04-01", "2024-06-30")) %>%
-  auk_country("United Kingdom") %>%
-  auk_protocol("Stationary") %>%
-  auk_complete()
+# BELOW CODE IS FOR RAW EBD DATASET, IF NEEDING TO FILTER MORE THAN THE OBTAINED DATASET
 
-# filter the data
-EBD_filtered_data <- "EBD_data_filtered.txt"
-sampling_filtered <- "sampling_filtered.txt"
+# # sekect dataset to be filtered
+# EBD_filters <- auk_ebd(EBD_file)
+# 
+# # select filters
+# EBD_filters <- EBD_filters %>%
+#   auk_date(date = c("2025-01-01", "2025-04-30")) %>% # filter by date - but could do when requesting data anyway
+#   auk_country("United Kingdom") %>% # only checklists from UK - should already be done
+#   auk_protocol("Stationary") %>% # only stationary surveys, no travelling or incidental etc.
+#   auk_complete() # only complete check-lists
+# 
+# # filter the data
+# EBD_filtered_data <- "EBD_data_filtered.txt"
+# sampling_filtered <- "sampling_filtered.txt"
+# 
+# auk_filter(EBD_filters,
+#            file = EBD_filtered_data,
+#            file_sampling = sampling_filtered,
+#            overwrite = TRUE)
+# 
+# # read the eBird data into R
+# braid_burn_species <- read_ebd(EBD_filtered_data)
 
-auk_filter(EBD_filters,
-           file = EBD_filtered_data,
-           file_sampling = sampling_filtered,
-           overwrite = TRUE)
+# read in Pentland KML file - replace with sitefile once made
+pentland_site <- st_read("./research_project_proposal/rebird_pilot/data/pentland_site.kml")
+# check the file
+plot(pentland_site)
 
-# read the eBird data into R
-braid_burn_species <- read_ebd(EBD_filtered_data)
+# clean the shapefile
+pentland_site <- st_make_valid(pentland_site) # removes any invalid geometry
+
+# convert EBD data to an sf object
+ebd_sf <- st_as_sf(ebd_data, coords = c("long_coord", "lat_coord"), crs = 4326)
+
+# ensure shapefile matches the CRS used in ebird data (WGS84 (EPSG:4326))
+pentland_site <- st_transform(pentland_site, crs = st_crs(ebd_sf))
+
+# filter out any data points in the ebird data that are not within the shapefile
+ebd_pentlands <- ebd_sf[st_within(ebd_sf, pentland_site, sparse = FALSE), ]
+
+# convert back to a normal dataframe
+ebd_pentlands <- as.data.frame(ebd_pentlands)
+head(ebd_pentlands)
+
+# filter (i.e. remove any entries that have not been approved)
+
+# then remove irrelevant column headings
+ebd_pentlands <- ebd_pentlands %>%
+  select(global_ID, common_name, scientific_name, observation_count, locality, observation_date, observer_ID, sampling_event_ID, geometry)
+
+# extract all unique species observed on site
+unique(ebd_pentlands$scientific_name)
+
+# repeat with Baddinsgill site to reality test
