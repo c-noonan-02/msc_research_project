@@ -1,6 +1,3 @@
-[submodule "final_research_project"]
-	path = final_research_project
-	url = https://github.com/c-noonan-02/research_project_proposal
 [submodule "research_project_proposal"]
 	path = research_project_proposal
 	url = https://github.com/c-noonan-02/research_project_proposal
